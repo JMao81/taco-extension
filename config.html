@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TACO Configuration</title>
+    <link rel="stylesheet" href="css/theme_as.css">
+    <link rel="stylesheet" href="css/theme_ha.css">
+</head>
+<body>
+    <div id="config-container">
+        <h1>TACO Configuration</h1>
+        <label for="user-prompt">Enter your dashboard prompt:</label>
+        <textarea id="user-prompt" rows="4" cols="50" placeholder="e.g., Create a 2x2 layout for KPIs and Trends using Theme A."></textarea>
+        <button id="generate-dashboard">Generate Dashboard</button>
+    </div>
+    <script src="js/masterAgent.js"></script>
+    <script src="js/htmlAgent.js"></script>
+    <script src="js/cssAgent.js"></script>
+    <script src="js/jsAgent.js"></script>
+    <script>
+        document.getElementById('generate-dashboard').addEventListener('click', function() {
+            const prompt = document.getElementById('user-prompt').value;
+            // Call the MasterAgent to generate the dashboard based on the prompt
+            // Implementation of MasterAgent logic goes here
+        });
+    </script>
+</body>
+</html>

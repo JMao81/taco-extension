@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TACO: Tableau Agent for Creative Orchestration</title>
+    <link rel="stylesheet" href="css/theme_as.css">
+    <link rel="stylesheet" href="css/theme_ha.css">
+</head>
+<body>
+    <div id="dashboard-container">
+        <h1>Welcome to TACO</h1>
+        <p>Your AI-powered dashboard designer.</p>
+        <button id="config-button">Open Configuration</button>
+    </div>
+
+    <script src="js/masterAgent.js"></script>
+    <script src="js/htmlAgent.js"></script>
+    <script src="js/cssAgent.js"></script>
+    <script src="js/jsAgent.js"></script>
+    <script>
+        document.getElementById('config-button').addEventListener('click', function() {
+            window.open('config.html', '_blank');
+        });
+    </script>
+</body>
+</html>
