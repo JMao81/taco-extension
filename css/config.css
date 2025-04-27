@@ -1,0 +1,161 @@
+/* config.css */
+@font-face {
+    font-family: 'Inter';
+    src: url('https://cdn.jsdelivr.net/npm/inter-ui@3.19.3/inter.min.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+
+body {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    margin: 0;
+    font-family: Inter, Verdana, sans-serif;
+}
+
+.chat-container {
+    width: 30%;
+    padding: 10px 20px;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    color: #5c52bb;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 5px;
+}
+
+.chat-history {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    height: 85%;
+}
+
+.chat-history.scrolled-to-bottom {
+    scroll-behavior: smooth;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input textarea {
+    flex: 1;
+    resize: none;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    height: 60px;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    border: none;
+    background: #5c52bb;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.message {
+    max-width: 75%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 4px 0;
+    margin-bottom: 8px;
+    font-size: 14px;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
+}
+
+.message .cursor {
+    display: inline-block;
+    border-right: 2px solid #333;
+    animation: blink 1s step-end infinite;
+}
+
+.message.user {
+    align-self: flex-end;
+    /* right side */
+    background-color: #d0f0fd;
+}
+
+.message.agent {
+    align-self: flex-start;
+    /* left side */
+    background-color: #e0e0e0;
+}
+
+.message.typing {
+    color: #999999;
+    font-style: italic;
+}
+
+.preview-container {
+    width: 70%;
+    padding: 20px;
+    background: #ffffff;
+    overflow: auto;
+}
+
+.preview-dashboard {
+    padding: 5px;
+    height: 70%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.debug-log {
+    background: #eee;
+    font-size: 12px;
+    color: #333;
+    padding: 10px;
+    border-radius: 6px;
+    height: 20%;
+    overflow-y: auto;
+}
+
+.footer-actions {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+.footer-actions button {
+    padding: 12px 20px;
+    background-color: #5c52bb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.footer-actions button:hover {
+    background-color: #483d97;
+}

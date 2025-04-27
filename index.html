@@ -4,24 +4,47 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TACO: Tableau Agent for Creative Orchestration</title>
-    <link rel="stylesheet" href="css/theme_as.css">
-    <link rel="stylesheet" href="css/theme_ha.css">
+
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="./css/jquery-ui.css">
+
+    <script src="./js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    
+    <script src="./js/tableau.extensions.1.latest.js"></script>
+    
+    <script src="./js/taco.js"></script>
+    <link rel="stylesheet" href="./css/taco.css">
+
+    <!-- Font Awesome Icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <style>
+        /* Ensure the body and container fit within the Tableau container */
+        body {
+            margin: 0;
+            padding: 15px; /* Add some padding */
+            overflow: hidden; /* Prevent scroll bars */
+            box-sizing: border-box;
+        }
+
+        #dashboard-container {
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+        }
+    </style>
+
+</script>
+
 </head>
+
 <body>
     <div id="dashboard-container">
         <h1>Welcome to TACO</h1>
         <p>Your AI-powered dashboard designer.</p>
-        <button id="config-button">Open Configuration</button>
     </div>
 
-    <script src="js/masterAgent.js"></script>
-    <script src="js/htmlAgent.js"></script>
-    <script src="js/cssAgent.js"></script>
-    <script src="js/jsAgent.js"></script>
-    <script>
-        document.getElementById('config-button').addEventListener('click', function() {
-            window.open('config.html', '_blank');
-        });
-    </script>
 </body>
 </html>
