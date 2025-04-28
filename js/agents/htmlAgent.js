@@ -1,165 +1,147 @@
 // js/agents/htmlAgent.js
-// Helper functions for modifying HTML elements in the dashboard preview
+'use strict';
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Generic Helpers
+// ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Add or replace the header text
- * @param {string} text
+ * Set the textContent of the first matching selector, preserving all styles.
  */
+function setSectionText(selector, text) {
+  const el = document.querySelector(selector);
+  if (el) {
+    el.textContent = text;
+  } else {
+    window.logMessage(`htmlAgent: setSectionText – ${selector} not found`);
+  }
+}
+
+/**
+ * Toggle an element’s visibility by setting style.display, preserving styles.
+ */
+function toggleVisibility(selector, shouldShow) {
+  const el = document.querySelector(selector);
+  if (el) {
+    el.style.display = shouldShow ? '' : 'none';
+  } else {
+    window.logMessage(`htmlAgent: toggleVisibility – ${selector} not found`);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Header
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Add or replace header text */
 export function addHeader(text) {
-    const headerEl = document.querySelector('.header');
-    if (headerEl) {
-      headerEl.textContent = text;
-      headerEl.style.display = '';
+  setSectionText('.header', text);
+}
+
+/** Alias for addHeader */
+export function updateHeader(text) {
+  addHeader(text);
+}
+
+/** Hide the header (does not remove it, preserves all styles) */
+export function hideHeader() {
+  toggleVisibility('.header', false);
+}
+
+/** Show the header again */
+export function showHeader() {
+  toggleVisibility('.header', true);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Subheader
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Add or replace subheader text; creates one if missing */
+export function addSubheader(text) {
+  let el = document.querySelector('.subheader');
+  if (!el) {
+    // create but do not apply any inline styles
+    el = document.createElement('div');
+    el.className = 'subheader';
+    const header = document.querySelector('.header');
+    if (header && header.parentNode) {
+      header.parentNode.insertBefore(el, header.nextSibling);
     } else {
-      window.logMessage('addHeader: .header element not found');
+      document.querySelector('#previewContainer')?.prepend(el);
     }
   }
-  
-  /**
-   * Update header text (alias for addHeader)
-   * @param {string} text
-   */
-  export function updateHeader(text) {
-    addHeader(text);
+  el.textContent = text;
+}
+
+/** Alias for addSubheader */
+export function updateSubheader(text) {
+  addSubheader(text);
+}
+
+/** Hide the subheader */
+export function hideSubheader() {
+  toggleVisibility('.subheader', false);
+}
+
+/** Show the subheader */
+export function showSubheader() {
+  toggleVisibility('.subheader', true);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Footer
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Add or replace footer text; creates one if missing */
+export function addFooter(text) {
+  let el = document.querySelector('.footer');
+  if (!el) {
+    el = document.createElement('div');
+    el.className = 'footer';
+    document.querySelector('#previewContainer')?.appendChild(el);
   }
-  
-  /**
-   * Remove or hide the header element
-   */
-  export function deleteHeader() {
-    const headerEl = document.querySelector('.header');
-    if (headerEl) {
-      headerEl.remove();
-    } else {
-      console.warn('deleteHeader: .header element not found');
-    }
+  el.textContent = text;
+}
+
+/** Alias for addFooter */
+export function updateFooter(text) {
+  addFooter(text);
+}
+
+/** Hide the footer */
+export function hideFooter() {
+  toggleVisibility('.footer', false);
+}
+
+/** Show the footer */
+export function showFooter() {
+  toggleVisibility('.footer', true);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Sidebar
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Replace the entire sidebar inner HTML
+ * @param {string} html
+ */
+export function setSidebarContent(html) {
+  const el = document.querySelector('.sidebar');
+  if (el) {
+    el.innerHTML = html;
+  } else {
+    window.logMessage('htmlAgent: setSidebarContent – .sidebar not found');
   }
-  
-  /**
-   * Show the header area (if hidden)
-   */
-  export function showHeader() {
-    let headerEl = document.querySelector('.header');
-    if (!headerEl) {
-      headerEl = document.createElement('div');
-      headerEl.className = 'header';
-      headerEl.textContent = 'Header Area';     // or store your default text elsewhere
-      document.querySelector('.preview-dashboard')
-        .prepend(headerEl);
-    }
-    headerEl.style.display = '';
-  }
-  
-  /**
-   * Add or replace the subheader text
-   * @param {string} text
-   */
-  export function addSubheader(text) {
-    let subheaderEl = document.querySelector('.subheader');
-    if (!subheaderEl) {
-      subheaderEl = document.createElement('div');
-      subheaderEl.className = 'subheader';
-      // Insert subheader after header
-      const headerEl = document.querySelector('.header');
-      if (headerEl && headerEl.parentNode) {
-        headerEl.parentNode.insertBefore(subheaderEl, headerEl.nextSibling);
-      } else {
-        document.body.prepend(subheaderEl);
-      }
-    }
-    subheaderEl.textContent = text;
-    subheaderEl.style.display = '';
-  }
-  
-  /**
-   * Update subheader text (alias for addSubheader)
-   * @param {string} text
-   */
-  export function updateSubheader(text) {
-    addSubheader(text);
-  }
-  
-  /**
-   * Remove or hide the subheader element
-   */
-  export function deleteSubheader() {
-    const subheaderEl = document.querySelector('.subheader');
-    if (subheaderEl) {
-      subheaderEl.remove();
-    } else {
-      console.warn('deleteSubheader: .subheader element not found');
-    }
-  }
-  
-  /**
-   * Show the subheader area (if hidden)
-   */
-  export function showSubheader() {
-    const subheaderEl = document.querySelector('.subheader');
-    if (subheaderEl) {
-      subheaderEl.style.display = '';
-    } else {
-      console.warn('showSubheader: .subheader element not found');
-    }
-  }
-  
-  /**
-   * Hide the footer area
-   */
-  export function hideFooter() {
-    const footerEl = document.querySelector('.footer');
-    if (footerEl) {
-      footerEl.style.display = 'none';
-    } else {
-      console.warn('hideFooter: .footer element not found');
-    }
-  }
-  
-  /**
-   * Show the footer area
-   */
-  export function showFooter() {
-    const footerEl = document.querySelector('.footer');
-    if (footerEl) {
-      footerEl.style.display = '';
-    } else {
-      console.warn('showFooter: .footer element not found');
-    }
-  }
-  
-  /**
-   * Replace sidebar content (HTML string)
-   * @param {string} html
-   */
-  export function setSidebarContent(html) {
-    const sidebarEl = document.querySelector('.sidebar');
-    if (sidebarEl) {
-      sidebarEl.innerHTML = html;
-    } else {
-      console.warn('setSidebarContent: .sidebar element not found');
-    }
-  }
-  
-  /**
-   * Hide the sidebar
-   */
-  export function hideSidebar() {
-    const sidebarEl = document.querySelector('.sidebar');
-    if (sidebarEl) {
-      sidebarEl.style.display = 'none';
-    } else {
-      console.warn('hideSidebar: .sidebar element not found');
-    }
-  }
-  
-  /**
-   * Show the sidebar
-   */
-  export function showSidebar() {
-    const sidebarEl = document.querySelector('.sidebar');
-    if (sidebarEl) {
-      sidebarEl.style.display = '';
-    } else {
-      console.warn('showSidebar: .sidebar element not found');
-    }
-  }
+}
+
+/** Hide the sidebar */
+export function hideSidebar() {
+  toggleVisibility('.sidebar', false);
+}
+
+/** Show the sidebar */
+export function showSidebar() {
+  toggleVisibility('.sidebar', true);
+}

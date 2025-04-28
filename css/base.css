@@ -1,0 +1,120 @@
+/* base.css */
+
+/* 1) Define your design tokens as CSS variables on the root */
+:root {
+    /* Theme colors (agents can update these) */
+    --bg-color:           #ffffff;
+    --header-bg:          #e8eaf6;
+    --subheader-bg:       #f5f5f5;
+    --sidebar-bg:         #8c85cb;
+    --main-bg:            #ffffff;
+    --footer-bg:          #e8e8e8;
+  
+    --text-color:         #333333;
+    --accent-color:       #5c52bb;
+    --link-color:         #ffffff;
+  
+    /* Spacing */
+    --gap:                16px;
+    --padding:            16px;
+  
+    /* Typography */
+    --font-family:        'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --header-font-size:   24px;
+    --subheader-font-size:18px;
+    --body-font-size:     14px;
+  }
+  
+  /* 2) Full‐viewport grid container */
+  #taco-dashboard-container {
+    display: grid;
+    grid-template-areas:
+      "header  header"
+      "subheader  subheader"
+      "sidebar main"
+      "footer  footer";
+    grid-template-rows: auto   /* header */
+                        auto   /* subheader */
+                        1fr    /* content */
+                        auto;  /* footer */
+    grid-template-columns: 250px 1fr;
+    height: 100vh;
+    gap: var(--gap);
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: var(--font-family);
+  }
+  
+  /* 3) Regions */
+  .header {
+    grid-area: header;
+    background: var(--header-bg);
+    font-size: var(--header-font-size);
+    padding: var(--padding);
+  }
+  
+  .subheader {
+    grid-area: subheader;
+    font-size: var(--subheader-font-size);
+    background: var(--subheader-bg);
+    padding: calc(var(--padding) / 2);
+  }
+  
+  .sidebar {
+    grid-area: sidebar;
+    background: var(--sidebar-bg);
+    padding: var(--padding);
+  }
+  
+  .main-content {
+    grid-area: main;
+    background: var(--main-bg);
+    padding: var(--padding);
+    overflow: auto;
+  }
+  
+  .footer {
+    grid-area: footer;
+    background: var(--footer-bg);
+    padding: var(--padding);
+    text-align: center;
+  }
+  
+  /* 4) Links in sidebar */
+  .sidebar a {
+    color: var(--link-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--gap);
+    font-size: var(--body-font-size);
+  }
+  
+  .sidebar a i {
+    margin-right: 8px;
+  }
+  
+  /* 5) Utility classes agents can toggle */
+  .hidden {
+    display: none !important;
+  }
+  .sticky {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  
+  /* 6) Responsive adjustments */
+  @media (max-width: 768px) {
+    #taco-dashboard-container {
+      grid-template-areas:
+        "header"
+        "subheader"
+        "sidebar"
+        "main"
+        "footer";
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto 1fr auto;
+    }
+  }
+  

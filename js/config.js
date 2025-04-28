@@ -4,15 +4,16 @@
  * This configuration dialog allows users to create tableau branding template
  */
 
-// import { updateExtensionUI } from './uiUpdate.js';
-// import { PreviewManager } from './modules/previewManager.js';
-// import { GeneralSettingManager } from './modules/generalSettingManager.js';
-// import { LogoSettingManager } from './modules/logoSettingManager.js';
-// import { EditingManager } from './modules/editingManger.js';
-// import themeManager from './modules/themeManager.js';
-// import SidebarMenuEditor from './modules/SidebarMenuEditor.js';
+import { handleUserPrompt as originalHandle } from './agents/masterAgent.js'; // Import the function from masterAgent.js
+import { brandingOptions } from './brandingOptions.js';
+import * as htmlAgent from './agents/htmlAgent.js';
+import * as cssAgent  from './agents/cssAgent.js';
 
-import { handleUserPrompt } from './agents/masterAgent.js'; // Import the function from masterAgent.js
+const tacoConfig = [];
+
+// Constants for the dashboard size
+const dashboardWidth = 1540;
+const dashboardHeight = 980;
 
 // Key used to store button configuration in Tableau settings.
 $(document).ready(function () {
@@ -20,8 +21,27 @@ $(document).ready(function () {
     tableau.extensions.initializeDialogAsync().then(function (openPayload) {
 
         logMessage("Dialog opened with payload: " + JSON.stringify(openPayload));
+
+        // // Retrieve and parse saved settings if available.
+        const savedConfig = tableau.extensions.settings.get('tacoConfig');
+        if (savedConfig) {
+            try {
+                const cmds = JSON.parse(savedConfig);
+                cmds.forEach(c => dispatchCommand(c));
+                tacoConfig.push(...cmds);  // prime our array so further saves include them
+                logMessage(`Replayed ${cmds.length} saved commands`);
+            } catch (e) {
+                console.error("Failed to replay saved config:", e);
+            }
+        }
         // Show welcome message
         showWelcomeMessage();
+
+        // Scale preview on load
+        rescalePreview();
+
+        // Whenever the window resizes, re-scale
+        window.addEventListener('resize', rescalePreview);
 
         // Attach event listener for the Save button.
         $('#save-button').on('click', closeDialog);
@@ -30,72 +50,106 @@ $(document).ready(function () {
             tableau.extensions.ui.closeDialog('cancel');
         });
 
-        // // Retrieve and parse saved settings if available.
-        const savedConfig = tableau.extensions.settings.get('tacoConfig');
-        if (savedConfig) {
-
-            const config = JSON.parse(savedConfig);
-        }
-
     });
 
 });
 
-function showWelcomeMessage() {
-    const chatHistory = document.getElementById('chatHistory');
-    if (!chatHistory) {
-        console.error("chatHistory not found");
-        return;
-    }
+function rescalePreview() {
+    logMessage("Rescaling preview...");
+    const container = document.getElementById('previewContainer');
 
-    const welcomeText = "Hi! I'm TACO, your Dashboard Design Assistant. Tell me how you'd like to build your dashboard!";
-    typeOutMessage(welcomeText, chatHistory, 'agent', 30);
+    //Compute uniform scale factor
+    const scale = 0.6;
+    //const scale = Math.min(availW / DASHBOARD_W, availH / DASHBOARD_H);
+
+    //Apply it
+    container.style.width = `${dashboardWidth}px`;
+    container.style.height = `${dashboardHeight}px`;
+    container.style.transformOrigin = '0 0';
+    container.style.transform = `scale(${scale})`;
+}
+
+async function showWelcomeMessage() {
+    const chatHistory = document.getElementById('chatHistory');
+    if (!chatHistory) return;
+
+    // 1) First line with typing animation
+    const firstLine = "Hi! 👋 I'm TACO, your Dashboard Design Assistant. Tell me how you'd like to build your dashboard!";
+    await typeOutMessage(firstLine, chatHistory, 'agent', 30);
+
+    // 2) Then build a nested UL for the rest
+    const themes = Object.keys(brandingOptions).slice(0, 3); // pick first 3 as example
+    const themeItems = themes
+        .map(t => `<li>Apply ${t} theme</li>`)
+        .join('');
+
+    const html = `
+      <span>You can ask me to: </span>
+      <ul style="margin-top:8px;">
+        <li>
+          Apply a theme to the dashboard:
+          <ul>
+            ${themeItems}
+          </ul>
+        </li>
+        <li>Move the navigation bar to the right</li>
+        <li>Add a dashboard title to the header</li>
+        <li>Hide the footer</li>
+      </ul>
+      <p style="margin-top:8px;font-size:12px;color:#666;">
+        (Feel free to swap in any of our ${Object.keys(brandingOptions).length} themes,
+        tweak layout, or hide/show elements.)
+      </p>
+    `.trim();
+
+    const msgDiv = document.createElement('div');
+    msgDiv.className = 'message agent';
+    msgDiv.innerHTML = html;
+    chatHistory.appendChild(msgDiv);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
 
     logMessage("Welcome message typing animation started.");
 }
 
 function typeOutMessage(text, container, who = 'agent', speed = 50) {
-    const msgDiv = document.createElement('div');
-    msgDiv.className = `message ${who}`;
-    container.appendChild(msgDiv);
+    return new Promise(resolve => {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `message ${who}`;
+        container.appendChild(msgDiv);
 
-    // Create a cursor span
-    const cursor = document.createElement('span');
-    cursor.className = 'cursor';
-    msgDiv.appendChild(cursor);
-
-    let i = 0;
-    const interval = setInterval(() => {
-        // On first char, replace cursor with text+cursor
-        msgDiv.textContent = text.slice(0, i + 1);
+        const cursor = document.createElement('span');
+        cursor.className = 'cursor';
         msgDiv.appendChild(cursor);
-        i++;
-        container.scrollTop = 0; // keep newest visible
 
-        if (i === text.length) {
-            clearInterval(interval);
-            cursor.remove(); // remove blinking cursor
-        }
-    }, speed);
+        let i = 0;
+        const interval = setInterval(() => {
+            msgDiv.textContent = text.slice(0, i + 1);
+            msgDiv.appendChild(cursor);
+            i++;
+            container.scrollTop = container.scrollHeight;
+
+            if (i === text.length) {
+                clearInterval(interval);
+                cursor.remove();
+                resolve();            // <-- Resolve the Promise here
+            }
+        }, speed);
+    });
 }
 
 /**
  * Saves the configuration to the extension settings and closes the dialog.
  */
-function closeDialog() {
+async function closeDialog() {
 
-    let config = {};
-
-    // Save the configuration as a JSON string.
-    tableau.extensions.settings.set('tacoConfig', JSON.stringify(config));
-    tableau.extensions.settings.saveAsync().then(() => {
-        // Close the dialog and pass back a payload indicating success.
+    try {
+        await tableau.extensions.settings.set('tacoConfig', JSON.stringify(tacoConfig));
+        await tableau.extensions.settings.saveAsync();
         tableau.extensions.ui.closeDialog('config_saved');
-        logMessage("Configuration saved: " + JSON.stringify(config));
-
-    }).catch((error) => {
-        alert("Error saving configuration: " + error.message);
-    });
+        logMessage(`Configuration saved (${tacoConfig.length} commands)`);
+    } catch (e) {
+        alert("Error saving configuration: " + e.message);
+    }
 }
 
 function logMessage(message) {
@@ -122,8 +176,35 @@ function submitPrompt() {
     handleUserPrompt(userPrompt);
 }
 
+async function handleUserPrompt(userPrompt) {
 
+    const cmd = await originalHandle(userPrompt);
+    if (cmd && cmd.agent && cmd.agent !== 'none') {
+        tacoConfig.push(cmd);
+        logMessage(`Recorded command: ${JSON.stringify(cmd)}`);
+    }
+
+    return; // everything else handled inside originalHandle
+}
+
+function dispatchCommand(cmd) {
+    const modules = { htmlAgent, cssAgent /*, jsAgent */ };
+    const fn = modules[cmd.agent]?.[cmd.action];
+    if (!fn) {
+        console.warn(`Unknown command ${cmd.agent}.${cmd.action}`);
+        return;
+    }
+    // support array or object payloads
+    const args = Array.isArray(cmd.payload)
+        ? cmd.payload
+        : cmd.payload && typeof cmd.payload === 'object'
+            ? Object.values(cmd.payload)
+            : [cmd.payload];
+    fn(...args);
+}
+
+window.handleUserPrompt = handleUserPrompt;
 window.submitPrompt = submitPrompt;
-window.logMessage = logMessage;  
+window.logMessage = logMessage;
 
 

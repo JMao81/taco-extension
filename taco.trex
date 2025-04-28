@@ -19,7 +19,7 @@
   </dashboard-extension>
   <resources>
     <resource id="name">
-      <text locale="en_US">Branding UI - TACO</text>
+      <text locale="en_US">Branding UI - TACO Agent</text>
     </resource>
   </resources>
 </manifest>

@@ -46,6 +46,7 @@ export const brandingOptions = {
       headerBg: "#ffffff",
       subheaderBg: "#ffffff",
       sidebarMenu: "#1d2c7f",
+      sidebarMenuGradient: "linear-gradient(to bottom, #1d2c7f 0%, #3c49a3 30%, #8029a3 100%)",
       footerBg: "#ffffff",
       text: "#333333",
       subtext: "#666666",

@@ -1,19 +1,21 @@
 /* config.css */
 @font-face {
     font-family: 'Inter';
-    src: url('https://cdn.jsdelivr.net/npm/inter-ui@3.19.3/inter.min.woff2') format('woff2');
+    src: url('./fonts/Inter-VariableFont_opsz\,wght.ttf')format('woff2');
     font-weight: 400;
     font-style: normal;
 }
 
-body {
+.container {
     display: flex;
-    flex-direction: row;
-    height: 100vh;
+    height: calc(100vh - 80px);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
-    font-family: Inter, Verdana, sans-serif;
+    width: 100%;
+    /* leave room for footer-actions */
 }
 
+/* Chat on left */
 .chat-container {
     width: 30%;
     padding: 10px 20px;
@@ -67,6 +69,10 @@ body {
     cursor: pointer;
 }
 
+.chat-input button:hover {
+    background-color: #483d97;
+}
+
 .message {
     max-width: 75%;
     padding: 8px 12px;
@@ -113,35 +119,40 @@ body {
     font-style: italic;
 }
 
-.preview-container {
-    width: 70%;
-    padding: 20px;
-    background: #ffffff;
-    overflow: auto;
-}
-
-.preview-dashboard {
-    padding: 5px;
-    height: 70%;
+/* main-area stacks preview + debug vertically */
+.main-area {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    flex: 1;
+    overflow: hidden;
+    padding: 20px;
+    width: 100%;
 }
 
-.debug-log {
-    background: #eee;
+/* Preview takes 70% of the main-area height */
+.preview-wrapper {
+    flex: 8;
+    position: relative;
+    overflow: hidden;
+}
+
+#debugLog {
+    flex: 2;
+    background: #1e1e1e;
+    color: #ddd;
+    font-family: monospace;
     font-size: 12px;
-    color: #333;
-    padding: 10px;
-    border-radius: 6px;
-    height: 20%;
+    padding: 8px;
     overflow-y: auto;
+    margin-top: 4px;
+    /* small gap under preview */
+    border-radius: 6px;
 }
 
 .footer-actions {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    right: 32px;
     display: flex;
     gap: 10px;
 }
@@ -158,4 +169,9 @@ body {
 
 .footer-actions button:hover {
     background-color: #483d97;
+}
+
+/* Keep your preview scaling CSS here */
+#previewContainer {
+    transform-origin: top left;
 }

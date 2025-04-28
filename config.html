@@ -6,7 +6,7 @@
     <title>TACO Configuration Panel</title>
 
     <script src="./js/tableau.extensions.1.latest.js"></script>
-    
+
     <script src="./js/jquery-3.2.1.min.js"></script>
     <script src="./js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="./css/jquery-ui.css">
@@ -20,36 +20,45 @@
     <!-- Font Awesome Icons-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="./css/config.css">
+    <link rel="stylesheet" href="./css/base.css">
 </head>
 
 <body>
 
-    <!-- Chat Section -->
-    <div class="chat-container">
-        <div class="chat-header">🌮 Ask TACO</div>
+    <div class="container">
+        <!-- Chat Section -->
+        <div class="chat-container">
+            <div class="chat-header">🌮 Ask TACO</div>
+            <div id="chatHistory" class="chat-history"></div>
+            <div class="chat-input">
+                <textarea id="userPrompt" placeholder="Describe what you want the dashboard to look like..."></textarea>
+                <button onclick="submitPrompt()">Send</button>
+            </div>
+        </div>
 
-        <div id="chatHistory" class="chat-history"></div>
+        <div class="main-area">
+            <!-- Preview Section -->
+            <div class="preview-wrapper">
+                <div id="previewContainer">
+                    <div id="real-dashboard"></div>
+                    <script>
+                        fetch('dashboardContainer.html')
+                            .then(r => {
+                                if (!r.ok) throw new Error('Failed to load container');
+                                return r.text();
+                            })
+                            .then(html => {
+                                document.getElementById('real-dashboard').innerHTML = html;
+                            })
+                            .catch(err => console.error(err));
+                    </script>
+                </div>
+            </div>
 
-        <div class="chat-input">
-            <textarea id="userPrompt" placeholder="Describe what you want the dashboard to look like..."></textarea>
-            <button onclick="submitPrompt()">Send</button>
+            <!-- Debug Log Section -->
+            <div id="debugLog" class="debug-panel"></div>
         </div>
     </div>
-
-    <!-- Preview Section -->
-    <div class="preview-container">
-        <div class="preview-dashboard" id="previewContainer">
-            <div class="header">Header Area</div>
-            <div class="sidebar">Sidebar Navigation</div>
-            <div class="main-content">Main Dashboard Content</div>
-            <div class="footer">Footer Area</div>
-        </div>
-
-        <div id="debugLog" class="debug-log">
-            Debug Log:<br>
-        </div>
-    </div>
-
     <!-- Floating Save/Cancel Buttons -->
     <div class="footer-actions">
         <button id="save-button">Save</button>
