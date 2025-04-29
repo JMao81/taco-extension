@@ -5,9 +5,9 @@
  */
 
 import { handleUserPrompt as originalHandle } from './agents/masterAgent.js'; // Import the function from masterAgent.js
-import { brandingOptions } from './brandingOptions.js';
 import * as htmlAgent from './agents/htmlAgent.js';
-import * as cssAgent  from './agents/cssAgent.js';
+import * as cssAgent from './agents/cssAgent.js';
+import { brandingOptions } from './brandingOptions.js';
 
 const tacoConfig = [];
 
@@ -27,13 +27,14 @@ $(document).ready(function () {
         if (savedConfig) {
             try {
                 const cmds = JSON.parse(savedConfig);
-                cmds.forEach(c => dispatchCommand(c));
-                tacoConfig.push(...cmds);  // prime our array so further saves include them
+                cmds.forEach(dispatchCommand);
+                tacoConfig.push(...cmds);
                 logMessage(`Replayed ${cmds.length} saved commands`);
             } catch (e) {
                 console.error("Failed to replay saved config:", e);
             }
         }
+
         // Show welcome message
         showWelcomeMessage();
 
@@ -45,14 +46,97 @@ $(document).ready(function () {
 
         // Attach event listener for the Save button.
         $('#save-button').on('click', closeDialog);
-
         $('#cancel-button').on('click', function () {
             tableau.extensions.ui.closeDialog('cancel');
+        });
+
+        const inputEl = document.getElementById('userPrompt');
+        inputEl.addEventListener('keydown', function (e) {
+            // If Enter is pressed **without** Shift (so you can still do multi-line with Shift+Enter)
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitPrompt();
+            }
         });
 
     });
 
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Dispatch a single {agent,action,payload} to the right module
+// ─────────────────────────────────────────────────────────────────────────────
+function dispatchCommand(cmd) {
+    const modules = { htmlAgent, cssAgent /*, jsAgent */ };
+    const fn = modules[cmd.agent]?.[cmd.action];
+    if (!fn) {
+        console.warn(`Unknown command ${cmd.agent}.${cmd.action}`);
+        return;
+    }
+    // support array or object payloads
+    const args = Array.isArray(cmd.payload)
+        ? cmd.payload
+        : cmd.payload && typeof cmd.payload === 'object'
+            ? Object.values(cmd.payload)
+            : [cmd.payload];
+    fn(...args);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Persist and close
+// ─────────────────────────────────────────────────────────────────────────────
+async function closeDialog() {
+
+    try {
+        const toSave = pruneCommands(tacoConfig);
+        // alert(`Saving tabConfig`+ JSON.stringify(toSave));
+        await tableau.extensions.settings.set('tacoConfig', JSON.stringify(toSave));
+        await tableau.extensions.settings.saveAsync();
+        tableau.extensions.ui.closeDialog('config_saved');
+        // alert(`Configuration saved (${tacoConfig.length} commands)`);
+    } catch (e) {
+        alert("Error saving configuration: " + e.message);
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat & Preview Helpers
+// ─────────────────────────────────────────────────────────────────────────────
+function logMessage(message) {
+    const logEl = document.getElementById('debugLog');
+    if (logEl) {
+        const titleHTML = "Debug Log:<br>"; // Your constant title.
+        const timestamp = new Date().toLocaleTimeString();
+        const newMsg = `<div>[${timestamp}] ${message}</div>`;
+        // Remove the title from the existing content (if it exists) and then re-prepend it.
+        let currentLogs = logEl.innerHTML.replace(titleHTML, "");
+        logEl.innerHTML = titleHTML + newMsg + currentLogs;
+    }
+}
+
+function submitPrompt() {
+    const inputEl = document.getElementById('userPrompt');
+    const userPrompt = inputEl.value.trim();
+    if (!userPrompt) return;
+
+    inputEl.value = '';
+    inputEl.focus();
+    handleUserPrompt(userPrompt);
+}
+
+async function handleUserPrompt(userPrompt) {
+    // pass to your master agent, get back the parsed cmd(s)
+    const cmds = await originalHandle(userPrompt);
+    if (!cmds) return;
+
+    // normalize to array
+    const list = Array.isArray(cmds) ? cmds : [cmds];
+    for (const cmd of list) {
+        if (cmd.agent !== 'none') {
+            tacoConfig.push(cmd);
+        }
+    }
+}
 
 function rescalePreview() {
     logMessage("Rescaling preview...");
@@ -74,7 +158,7 @@ async function showWelcomeMessage() {
     if (!chatHistory) return;
 
     // 1) First line with typing animation
-    const firstLine = "Hi! 👋 I'm TACO, your Dashboard Design Assistant. Tell me how you'd like to build your dashboard!";
+    const firstLine = "👋 Hi! I'm TACO, your Dashboard Design Assistant. Tell me how you'd like to build your dashboard!";
     await typeOutMessage(firstLine, chatHistory, 'agent', 30);
 
     // 2) Then build a nested UL for the rest
@@ -137,72 +221,25 @@ function typeOutMessage(text, container, who = 'agent', speed = 50) {
     });
 }
 
-/**
- * Saves the configuration to the extension settings and closes the dialog.
- */
-async function closeDialog() {
-
-    try {
-        await tableau.extensions.settings.set('tacoConfig', JSON.stringify(tacoConfig));
-        await tableau.extensions.settings.saveAsync();
-        tableau.extensions.ui.closeDialog('config_saved');
-        logMessage(`Configuration saved (${tacoConfig.length} commands)`);
-    } catch (e) {
-        alert("Error saving configuration: " + e.message);
+function pruneCommands(commands) {
+    const seen = new Map();
+    // walk from end to front, so we keep the last one
+    for (let i = commands.length - 1; i >= 0; --i) {
+        const cmd = commands[i];
+        // define a key: agent + action + (selector if payload.selector exists)
+        let key = `${cmd.agent}::${cmd.action}`;
+        if (cmd.payload && typeof cmd.payload === 'object' && 'selector' in cmd.payload) {
+            key += `::${cmd.payload.selector}`;
+        }
+        if (!seen.has(key)) {
+            seen.set(key, cmd);
+        }
     }
+    // return in original order, but only the kept ones
+    return Array.from(seen.values()).reverse();
 }
 
-function logMessage(message) {
-    const logEl = document.getElementById('debugLog');
-    if (logEl) {
-        const titleHTML = "Debug Log:<br>"; // Your constant title.
-        const timestamp = new Date().toLocaleTimeString();
-        const newMsg = `<div>[${timestamp}] ${message}</div>`;
-        // Remove the title from the existing content (if it exists) and then re-prepend it.
-        let currentLogs = logEl.innerHTML.replace(titleHTML, "");
-        logEl.innerHTML = titleHTML + newMsg + currentLogs;
-    }
-}
-
-function submitPrompt() {
-    const inputEl = document.getElementById('userPrompt');
-    const userPrompt = inputEl.value.trim();
-    if (!userPrompt) return;
-
-    inputEl.value = '';
-    inputEl.focus();
-
-    // 3. Pass the prompt off to your master agent
-    handleUserPrompt(userPrompt);
-}
-
-async function handleUserPrompt(userPrompt) {
-
-    const cmd = await originalHandle(userPrompt);
-    if (cmd && cmd.agent && cmd.agent !== 'none') {
-        tacoConfig.push(cmd);
-        logMessage(`Recorded command: ${JSON.stringify(cmd)}`);
-    }
-
-    return; // everything else handled inside originalHandle
-}
-
-function dispatchCommand(cmd) {
-    const modules = { htmlAgent, cssAgent /*, jsAgent */ };
-    const fn = modules[cmd.agent]?.[cmd.action];
-    if (!fn) {
-        console.warn(`Unknown command ${cmd.agent}.${cmd.action}`);
-        return;
-    }
-    // support array or object payloads
-    const args = Array.isArray(cmd.payload)
-        ? cmd.payload
-        : cmd.payload && typeof cmd.payload === 'object'
-            ? Object.values(cmd.payload)
-            : [cmd.payload];
-    fn(...args);
-}
-
+// expose to HTML
 window.handleUserPrompt = handleUserPrompt;
 window.submitPrompt = submitPrompt;
 window.logMessage = logMessage;

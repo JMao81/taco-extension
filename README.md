@@ -1,4 +1,4 @@
-# 🌮 TACO: Tableau Agent for Creative Orchestration
+# 🌮 TACO: Tableau Automate Copilot
 
 ## Overview
 **TACO** is an AI-powered, modular Tableau Extension that intelligently designs dashboards.  

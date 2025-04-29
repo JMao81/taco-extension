@@ -1,9 +1,77 @@
 // js/agents/htmlAgent.js
 'use strict';
 
+import { logoLibrary } from '../brandingOptions.js';
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Generic Helpers
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * List available logos (returns array of {index, name})
+ */
+export function listLogos() {
+  return logoLibrary.map((l, i) => ({ index: i + 1, name: l.name }));
+}
+
+/**
+ * Add or replace the logo in the header
+ * @param {{ choice: number|string }} opts
+ *    choice: either the 1-based index, or the exact name
+ */
+export function addLogo(opts) {
+  // resolve URL
+  let entry;
+  if (typeof opts.choice === 'number') {
+    entry = logoLibrary[opts.choice - 1];
+  } else {
+    entry = logoLibrary.find(l => l.name.toLowerCase() === opts.choice.toLowerCase());
+  }
+  if (!entry) {
+    console.warn("htmlAgent.addLogo: unknown choice", opts.choice);
+    return;
+  }
+
+  // find or create img
+  let img = document.querySelector('.header .taco-logo');
+  if (!img) {
+    img = document.createElement('img');
+    img.className = 'taco-logo';
+    // default to top-left
+    img.style.position = 'absolute';
+    img.style.top = '8px';
+    img.style.left = '8px';
+    img.style.height = '40px';
+    document.querySelector('.header').appendChild(img);
+  }
+  img.src = entry.url;
+  window.logMessage(`htmlAgent: addLogo("${entry.name}")`);
+}
+
+/**
+ * Move the logo within the header
+ * @param {{ top?:string, left?:string, right?:string, bottom?:string }} pos
+ */
+export function moveLogo(pos) {
+  const img = document.querySelector('.header .taco-logo');
+  if (!img) {
+    console.warn("htmlAgent.moveLogo: no logo present");
+    return;
+  }
+  Object.assign(img.style, pos);
+  window.logMessage(`htmlAgent: moveLogo(${JSON.stringify(pos)})`);
+}
+
+/**
+ * Remove the logo
+ */
+export function removeLogo() {
+  const img = document.querySelector('.header .taco-logo');
+  if (img) {
+    img.remove();
+    window.logMessage("htmlAgent: removeLogo()");
+  }
+}
 
 /**
  * Set the textContent of the first matching selector, preserving all styles.
@@ -40,7 +108,16 @@ export function addHeader(text) {
 
 /** Alias for addHeader */
 export function updateHeader(text) {
-  addHeader(text);
+  // Try both your preview container and real-dashboard container
+  const headerEl =
+    document.querySelector('#real-dashboard .header') ||
+    document.querySelector('.header');
+
+  // alert('htmlAgent.updateHeader:', { text, found: !!headerEl, headerEl });
+
+  if (headerEl) {
+    headerEl.textContent = text;
+  }
 }
 
 /** Hide the header (does not remove it, preserves all styles) */

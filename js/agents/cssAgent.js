@@ -64,9 +64,25 @@ export function applyThemeStyle(themeName) {
     window.logMessage(`cssAgent: theme '${themeName}' applied to dashboard container`);
 }
 
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  Customization APIs
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Set the logo’s width or height
+ * @param {{ dimension: "width"|"height", value:string }} opts
+ */
+export function setLogoSize(opts) {
+    const img = document.querySelector('.header .taco-logo');
+    if (!img) {
+        console.warn("cssAgent.setLogoSize: no logo present");
+        return;
+    }
+    img.style[opts.dimension] = opts.value;
+    window.logMessage(`cssAgent: setLogoSize(${opts.dimension}=${opts.value})`);
+}
+
 /** Change the sidebar background color */
 export function setSidebarColor(color) {
     const c = document.getElementById('taco-dashboard-container');
@@ -75,11 +91,19 @@ export function setSidebarColor(color) {
 }
 
 /** Change the overall container background */
-export function setBackground(color) {
-    const c = document.getElementById('taco-dashboard-container');
-    if (c) c.style.backgroundColor = color;
-    window.logMessage(`cssAgent: setBackground(${color})`);
+// export function setBackground(color) {
+//     const c = document.getElementById('taco-dashboard-container');
+//     if (c) c.style.backgroundColor = color;
+//     window.logMessage(`cssAgent: setBackground(${color})`);
+// }
+
+
+export function setBackgroundColor(selector, color) {
+    document.querySelectorAll(selector)
+        .forEach(el => el.style.backgroundColor = color);
+    window.logMessage(`cssAgent: setBackgroundColor(${selector}, ${color})`);
 }
+
 
 /** Change text color of any selector */
 export function setTextColor(selector, color) {

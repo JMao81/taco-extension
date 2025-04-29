@@ -1,5 +1,14 @@
 // brandingOptions.js
 
+export const logoLibrary = [
+  { name: "AAG", url: "./img/logo-round-alaska.png" },
+  { name: "HA", url: "./img/logo-round-hawaiian.png" },
+  { name: "QX", url: "./img/logo-round-horizon.png" },
+  { name: "AAG gif", url: "./img/logoAnimated.gif" },
+  { name: "Combined", url: "./img/combined-org-logo.png" }
+  // …
+];
+
 export const brandingOptions = {
     light: {
       background: "#f8f9fa",
