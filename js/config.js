@@ -7,6 +7,7 @@
 import { handleUserPrompt as originalHandle } from './agents/masterAgent.js'; // Import the function from masterAgent.js
 import * as htmlAgent from './agents/htmlAgent.js';
 import * as cssAgent from './agents/cssAgent.js';
+// import * as jsAgent from './agents/jsAgent.js';
 import { brandingOptions } from './brandingOptions.js';
 
 const tacoConfig = [];
@@ -18,18 +19,37 @@ const dashboardHeight = 980;
 // Key used to store button configuration in Tableau settings.
 $(document).ready(function () {
     // Initialize the configuration dialog.
-    tableau.extensions.initializeDialogAsync().then(function (openPayload) {
-
-        logMessage("Dialog opened with payload: " + JSON.stringify(openPayload));
+    tableau.extensions.initializeDialogAsync().then(function () {
 
         // // Retrieve and parse saved settings if available.
         const savedConfig = tableau.extensions.settings.get('tacoConfig');
+        logMessage("Saved config: " + savedConfig);
+
         if (savedConfig) {
             try {
                 const cmds = JSON.parse(savedConfig);
-                cmds.forEach(dispatchCommand);
-                tacoConfig.push(...cmds);
-                logMessage(`Replayed ${cmds.length} saved commands`);
+                try {
+                    cmds.forEach(cmd => {
+                        // Validate the command structure
+                        if (cmd.agent && cmd.action) {
+                            if (
+                                cmd.agent === 'htmlAgent' &&
+                                cmd.action === 'listLogos'
+                            ) {
+                                logMessage("Skip Listing logos...");
+                            }
+                            else {
+                                dispatchCommand(cmd); // replay into preview
+                            }
+                        } else {
+                            logMessage(`Invalid command structure: ${JSON.stringify(cmd)}`);
+                        }
+                    });
+                }
+                catch (e) {
+                    logMessage(`Error replaying command: ${e.message}`);
+                }
+
             } catch (e) {
                 console.error("Failed to replay saved config:", e);
             }
@@ -67,19 +87,28 @@ $(document).ready(function () {
 // Dispatch a single {agent,action,payload} to the right module
 // ─────────────────────────────────────────────────────────────────────────────
 function dispatchCommand(cmd) {
-    const modules = { htmlAgent, cssAgent /*, jsAgent */ };
+    const modules = { htmlAgent, cssAgent /*, jsAgent*/ };
     const fn = modules[cmd.agent]?.[cmd.action];
-    if (!fn) {
-        console.warn(`Unknown command ${cmd.agent}.${cmd.action}`);
-        return;
+    if (typeof fn !== 'function') {
+        return logMessage(`Unknown command: ${cmd.agent}.${cmd.action}`);
     }
-    // support array or object payloads
+
+    // figure out args...
     const args = Array.isArray(cmd.payload)
         ? cmd.payload
-        : cmd.payload && typeof cmd.payload === 'object'
-            ? Object.values(cmd.payload)
-            : [cmd.payload];
-    fn(...args);
+        : [cmd.payload];
+
+    // call it and capture any returned payload
+    const result = fn(...args);
+
+    // if the agent helper returned a new payload object, use that
+    if (result && typeof result === 'object') {
+        cmd = { ...cmd, payload: result };
+    }
+
+    // now push the updated cmd
+    tacoConfig.push(cmd);
+    logMessage(`Recorded command: ${JSON.stringify(cmd)}`);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -132,7 +161,7 @@ async function handleUserPrompt(userPrompt) {
     // normalize to array
     const list = Array.isArray(cmds) ? cmds : [cmds];
     for (const cmd of list) {
-        if (cmd.agent !== 'none') {
+        if (cmd.agent !== 'none' && cmd.action !== 'listLogos') {
             tacoConfig.push(cmd);
         }
     }
@@ -162,7 +191,7 @@ async function showWelcomeMessage() {
     await typeOutMessage(firstLine, chatHistory, 'agent', 30);
 
     // 2) Then build a nested UL for the rest
-    const themes = Object.keys(brandingOptions).slice(0, 3); // pick first 3 as example
+    const themes = Object.keys(brandingOptions).slice(0, 5); // pick first 3 as example
     const themeItems = themes
         .map(t => `<li>Apply ${t} theme</li>`)
         .join('');
@@ -179,6 +208,7 @@ async function showWelcomeMessage() {
         <li>Move the navigation bar to the right</li>
         <li>Add a dashboard title to the header</li>
         <li>Hide the footer</li>
+        <li>Ask me to recommend a text color or font face</li>
       </ul>
       <p style="margin-top:8px;font-size:12px;color:#666;">
         (Feel free to swap in any of our ${Object.keys(brandingOptions).length} themes,
@@ -221,23 +251,100 @@ function typeOutMessage(text, container, who = 'agent', speed = 50) {
     });
 }
 
-function pruneCommands(commands) {
+const agentModules = { htmlAgent, cssAgent /*, jsAgent*/ };
+
+/**
+ * Deduplicate + clean up the tacoConfig command array.
+ * • Logos: only the very last addLogo (drops any earlier once removeLogo is seen).
+ * • MenuItems: only the very last addMenuItem per normalized name;
+ *   removeMenuItem(name) will purge any prior addMenuItem for that same normalized name.
+ * • All other agent.action(+selector) combos: keep only the last one.
+ */
+export function pruneCommands(commands) {
     const seen = new Map();
-    // walk from end to front, so we keep the last one
+    let sawRemoveLogo = false;
+
+    // helper to normalize menu-item names into a consistent key
+    const normalizeName = name =>
+        String(name || '')
+            .trim()
+            .toLowerCase();
+
+    // walk from newest → oldest
     for (let i = commands.length - 1; i >= 0; --i) {
-        const cmd = commands[i];
-        // define a key: agent + action + (selector if payload.selector exists)
-        let key = `${cmd.agent}::${cmd.action}`;
-        if (cmd.payload && typeof cmd.payload === 'object' && 'selector' in cmd.payload) {
-            key += `::${cmd.payload.selector}`;
+        const { agent, action, payload } = commands[i];
+
+        // —— removeLogo clears all earlier addLogo
+        if (agent === 'htmlAgent' && action === 'removeLogo') {
+            sawRemoveLogo = true;
+            for (let key of seen.keys()) {
+                if (key.startsWith('htmlAgent::addLogo::')) seen.delete(key);
+            }
+            // keep the removeLogo itself
         }
+
+        // —— removeMenuItem clears earlier adds for that name
+        if (
+            agent === 'htmlAgent' &&
+            action === 'removeMenuItem' &&
+            payload?.name
+        ) {
+            const nm = normalizeName(payload.name);
+            for (let key of seen.keys()) {
+                if (key === `htmlAgent::addMenuItem::${nm}`) {
+                    seen.delete(key);
+                }
+            }
+            // keep this removeMenuItem so you could re-add later
+        }
+
+        // build dedupe key
+        let key = `${agent}::${action}`;
+
+        // —— unify all addLogo under one key (unless a removeLogo came later)
+        if (agent === 'htmlAgent' && action === 'addLogo') {
+            if (sawRemoveLogo) {
+                continue; // drop any addLogo older than a removeLogo
+            }
+            key = 'htmlAgent::addLogo';
+        }
+
+        // —— dedupe addMenuItem by normalized name
+        if (
+            agent === 'htmlAgent' &&
+            action === 'addMenuItem' &&
+            payload?.name
+        ) {
+            const nm = normalizeName(payload.name);
+            key = `htmlAgent::addMenuItem::${nm}`;
+        }
+
+        // —— everything else, include selector or first payload element
+        if (
+            payload != null &&
+            typeof payload === 'object' &&
+            !['addLogo', 'removeLogo', 'addMenuItem', 'removeMenuItem'].includes(action)
+        ) {
+            if ('selector' in payload) {
+                key += `::${payload.selector}`;
+            } else if (
+                Array.isArray(payload) &&
+                typeof payload[0] === 'string'
+            ) {
+                key += `::${payload[0]}`;
+            }
+        }
+
+        // if we haven't yet kept one under this key, keep it
         if (!seen.has(key)) {
-            seen.set(key, cmd);
+            seen.set(key, commands[i]);
         }
     }
-    // return in original order, but only the kept ones
+
+    // return in original (oldest→newest) order
     return Array.from(seen.values()).reverse();
 }
+
 
 // expose to HTML
 window.handleUserPrompt = handleUserPrompt;

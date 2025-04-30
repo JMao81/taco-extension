@@ -8,68 +8,110 @@ import { logoLibrary } from '../brandingOptions.js';
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * List available logos (returns array of {index, name})
+ * Renders a list of logos (with images) in the chat and returns the raw list.
  */
 export function listLogos() {
+  const chatHistory = document.getElementById('chatHistory');
+  if (!chatHistory) {
+    return console.error('listLogos: chatHistory element not found');
+  }
+
+  // Build an <li> for each logo with an <img> thumbnail
+  const itemsHtml = logoLibrary
+    .map((logo, i) => {
+      return `
+        <li style="display:flex; align-items:center; margin:4px 0;">
+          <img src="${logo.url}"
+               alt="${logo.name}"
+               style="width:24px; height:24px; object-fit:contain; margin-right:8px; border:1px solid #ccc; border-radius:4px;" />
+          <strong>${i + 1}.</strong>&nbsp;${logo.name}
+        </li>`;
+    })
+    .join('');
+
+  // Create and append the message
+  const msgDiv = document.createElement('div');
+  msgDiv.className = 'message agent';
+  msgDiv.innerHTML = `
+    <p>I have the following logos available:</p>
+    <ul style="padding-left:20px; margin:0;">
+      ${itemsHtml}
+    </ul>
+    <p>Which one would you like?</p>
+  `;
+  chatHistory.appendChild(msgDiv);
+  chatHistory.scrollTop = chatHistory.scrollHeight;
+
+  // Also return the raw list in case the caller needs it
   return logoLibrary.map((l, i) => ({ index: i + 1, name: l.name }));
 }
 
 /**
- * Add or replace the logo in the header
- * @param {{ choice: number|string }} opts
- *    choice: either the 1-based index, or the exact name
+ * Add a logo to the specified region (header or sidebar).
+ * @param {{ choice: number|string, region?: "header"|"sidebar" }} options
  */
-export function addLogo(opts) {
-  // resolve URL
-  let entry;
-  if (typeof opts.choice === 'number') {
-    entry = logoLibrary[opts.choice - 1];
-  } else {
-    entry = logoLibrary.find(l => l.name.toLowerCase() === opts.choice.toLowerCase());
-  }
-  if (!entry) {
-    console.warn("htmlAgent.addLogo: unknown choice", opts.choice);
-    return;
+export function addLogo({ choice, region }) {
+  const lib = logoLibrary[choice - 1];
+  if (!lib) {
+    return window.logMessage(`addLogo: no logo #${choice}`);
   }
 
-  // find or create img
-  let img = document.querySelector('.header .taco-logo');
-  if (!img) {
-    img = document.createElement('img');
-    img.className = 'taco-logo';
-    // default to top-left
-    img.style.position = 'absolute';
-    img.style.top = '8px';
-    img.style.left = '8px';
-    img.style.height = '40px';
-    document.querySelector('.header').appendChild(img);
+  // Create the <img> element
+  const img = document.createElement('img');
+  img.src = lib.url;
+  img.className = 'taco-logo';
+
+  // Determine the parent container based on the region
+  let parent;
+  if (region === 'header') {
+    parent = document.querySelector('.header');
+  } else if (region === 'sidebar') {
+    parent = document.querySelector('.sidebar');
+  } else {
+    // Default behavior: choose header if visible, else sidebar
+    parent = document.querySelector('.header') || document.querySelector('.sidebar');
   }
-  img.src = entry.url;
-  window.logMessage(`htmlAgent: addLogo("${entry.name}")`);
+
+  if (!parent) {
+    return window.logMessage(`addLogo: no container found for region "${region || 'default'}"`);
+  }
+
+  // Append the logo to the determined parent container
+  parent.appendChild(img);
+  window.logMessage(`htmlAgent: addLogo("${lib.name}") into ${parent.tagName} (${region || 'default'})`);
 }
+
 
 /**
  * Move the logo within the header
- * @param {{ top?:string, left?:string, right?:string, bottom?:string }} pos
+ * @param {{ top?:string, left?:string, right?:string, bottom?:string }} opts
  */
-export function moveLogo(pos) {
-  const img = document.querySelector('.header .taco-logo');
-  if (!img) {
-    console.warn("htmlAgent.moveLogo: no logo present");
-    return;
+export function moveLogo(spec = {}) {
+  const wrapper = document.querySelector('.taco-logo');
+  if (!wrapper) {
+    return window.logMessage('htmlAgent.moveLogo: no logo to move');
   }
-  Object.assign(img.style, pos);
-  window.logMessage(`htmlAgent: moveLogo(${JSON.stringify(pos)})`);
+  // ensure wrapper is absolute inside its parent
+  wrapper.style.position = 'absolute';
+  Object.entries(spec).forEach(([k, v]) => {
+    // only accept top/right/bottom/left
+    if (['top', 'right', 'bottom', 'left'].includes(k)) {
+      wrapper.style[k] = v;
+    }
+  });
+  window.logMessage(`htmlAgent: moved logo to ${JSON.stringify(spec)}`);
 }
 
 /**
  * Remove the logo
  */
 export function removeLogo() {
-  const img = document.querySelector('.header .taco-logo');
-  if (img) {
-    img.remove();
-    window.logMessage("htmlAgent: removeLogo()");
+  const logo = document.querySelector('.taco-logo');
+  if (logo) {
+    logo.remove();
+    window.logMessage('htmlAgent: Logo removed successfully.');
+  } else {
+    window.logMessage('htmlAgent: No logo found to remove.');
   }
 }
 
@@ -102,22 +144,37 @@ function toggleVisibility(selector, shouldShow) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Add or replace header text */
-export function addHeader(text) {
-  setSectionText('.header', text);
+export function updateHeader(text) {
+  const headerEl = document.querySelector('.header');
+  if (!headerEl) {
+    return window.logMessage('updateHeader: .header not found');
+  }
+
+  // 1) Remove any existing titles or paragraph placeholders
+  headerEl.querySelectorAll('h1, p').forEach(el => el.remove());
+
+  // 2) Create one dashboard-title
+  const titleEl = document.createElement('h1');
+  titleEl.className = 'dashboard-title';
+  titleEl.textContent = text;
+
+  // 3) If you have a logo-wrapper, insert title after it; otherwise prepend
+  const logoWrapper = headerEl.querySelector('.taco-logo-wrapper');
+  if (logoWrapper) {
+    logoWrapper.insertAdjacentElement('afterend', titleEl);
+  } else {
+    headerEl.prepend(titleEl);
+  }
+
+  window.logMessage(`htmlAgent: updateHeader("${text}")`);
 }
 
-/** Alias for addHeader */
-export function updateHeader(text) {
-  // Try both your preview container and real-dashboard container
-  const headerEl =
-    document.querySelector('#real-dashboard .header') ||
-    document.querySelector('.header');
 
-  // alert('htmlAgent.updateHeader:', { text, found: !!headerEl, headerEl });
-
-  if (headerEl) {
-    headerEl.textContent = text;
-  }
+/**
+ * Alias for updateHeader
+ */
+export function addHeader(text) {
+  updateHeader(text);
 }
 
 /** Hide the header (does not remove it, preserves all styles) */
@@ -204,13 +261,31 @@ export function showFooter() {
  * Replace the entire sidebar inner HTML
  * @param {string} html
  */
-export function setSidebarContent(html) {
-  const el = document.querySelector('.sidebar');
-  if (el) {
-    el.innerHTML = html;
-  } else {
-    window.logMessage('htmlAgent: setSidebarContent – .sidebar not found');
+/**
+ * Update only the first top‐level <p> inside the sidebar.
+ * If none exists, it will create one just above .nav-top.
+ * @param {string} html — string of HTML (or plain text) to set inside that <p>
+ */
+export function setSidebarText(html) {
+  const sidebar = document.querySelector('.sidebar');
+  if (!sidebar) {
+    return window.logMessage('htmlAgent.setSidebarText: .sidebar not found');
   }
+
+  // select only a <p> that is a direct child of .sidebar
+  let p = sidebar.querySelector(':scope > p');
+  if (!p) {
+    // no top‐level <p>—create it
+    p = document.createElement('p');
+    p.className = 'sidebar-text';  // optional, for your own styling
+    // insert it immediately before the nav‐top container
+    const navTop = sidebar.querySelector('.nav-top');
+    if (navTop) sidebar.insertBefore(p, navTop);
+    else sidebar.prepend(p);
+  }
+
+  p.innerHTML = html;
+  window.logMessage(`htmlAgent: setSidebarText("${html}")`);
 }
 
 /** Hide the sidebar */
@@ -221,4 +296,85 @@ export function hideSidebar() {
 /** Show the sidebar */
 export function showSidebar() {
   toggleVisibility('.sidebar', true);
+}
+
+/**
+ * Replace the entire main-content inner HTML
+ * @param {string} html
+ */
+export function setMainContent(html) {
+  const main = document.querySelector('.main-content');
+  if (!main) return window.logMessage('setMainContent: .main not found');
+  main.innerHTML = html;
+  window.logMessage('htmlAgent: setMainContent(...)');
+}
+
+/**
+ * List current sidebar menu items.
+ * @returns {Array<{ index:number, name:string, url:string, icon:string, tooltip:string }>}
+ */
+export function listMenuItems() {
+  const container = document.querySelector('.sidebar .nav-top');
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('.menu-item a'))
+    .map((a, i) => ({ index: i + 1, text: a.textContent.trim(), url: a.href }));
+}
+
+export function addMenuItem({ name, url = '#', tooltip = '', icon = '' }) {
+  const container = document.querySelector('.sidebar .nav-top');
+  if (!container) {
+    console.warn('addMenuItem: .nav-top not found');
+    return;
+  }
+
+  // create wrapper div instead of <li>
+  const item = document.createElement('div');
+  item.className = 'menu-item';
+
+  const link = document.createElement('a');
+  link.href = url;
+  if (tooltip) link.title = tooltip;
+  link.innerHTML = icon
+    ? `<i class="${icon}"></i> ${name}`
+    : name;
+
+  item.appendChild(link);
+  container.appendChild(item);
+  window.logMessage(`htmlAgent: addMenuItem("${name}")`);
+}
+
+/**
+ * Remove a menu‐item by name or by 1-based index.
+ * @param {{ name?: string, index?: number }} opts
+ */
+export function removeMenuItem(opts) {
+  // look up the container and its items
+  const container = document.querySelector('.sidebar .nav-top');
+  if (!container) {
+    return window.logMessage('htmlAgent.removeMenuItem: .nav-top not found');
+  }
+  const items = Array.from(container.children);
+  let nameToRemove;
+  if (opts.name) {
+    nameToRemove = opts.name;
+  } else if (typeof opts.index === 'number') {
+    const idx = opts.index - 1;
+    if (idx < 0 || idx >= items.length) {
+      return window.logMessage(`htmlAgent.removeMenuItem: invalid index ${opts.index}`);
+    }
+    // assume <a> textContent is the name
+    nameToRemove = items[idx].textContent.trim();
+  } else {
+    return window.logMessage('htmlAgent.removeMenuItem: must supply name or index');
+  }
+
+  // actually find and remove the item whose text matches
+  for (let el of items) {
+    if (el.textContent.trim().startsWith(nameToRemove)) {
+      container.removeChild(el);
+      window.logMessage(`htmlAgent: removeMenuItem("${nameToRemove}")`);
+      return;
+    }
+  }
+  window.logMessage(`htmlAgent.removeMenuItem: "${nameToRemove}" not found`);
 }
