@@ -16,7 +16,7 @@
   </dashboard-extension>
   <resources>
     <resource id="name">
-      <text locale="en_US">Branding UI - TACO Agent</text>
+      <text locale="en_US">TACO Agent</text>
     </resource>
   </resources>
 </manifest>
