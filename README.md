@@ -62,14 +62,23 @@ Master Agent
 4. Launch Config Window to generate a dashboard based on a prompt.
 
 Example:  
-> _"Create a 2x2 layout for KPIs and Trends using Theme A."_
+> _"Give me 3 - 5 best practice advice on designing Tableau Dashboard."_
+> _"What is a good font style and size for a KPI dashboard header."_
+> _"Change header text to Hello World."_
+> _"Add 20px padding all around the main area"_
+> _"Show me a list of logos."_
+> _"Add logo to the header and adjust it to width of 275px and align it to the right."_
+> _"Apply Taco theme."_
+> _"Add black border to the subheader and adjust the top and bottom left corner radius to 25px."_
+
 
 ---
 
 ## Tech Stack
+- Azure OpenAI Service
 - JavaScript (ES6+)
 - Tableau Extensions API
-- Azure OpenAI Service
+- Azure Function (to retrieve API key)
 - HTML/CSS
 
 ---
