@@ -12,7 +12,7 @@ TACO saves time, standardizes design, and delivers clean, branded dashboards —
 ---
 
 ## Demo Video
-*(Link will be added here after recording.)*
+[![Watch the video](https://img.youtube.com/vi/C7auCWgqu80/maxresdefault.jpg)](https://www.youtube.com/watch?v=C7auCWgqu80)
 
 ---
 
