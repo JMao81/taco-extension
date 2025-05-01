@@ -17,10 +17,10 @@ TACO saves time, standardizes design, and delivers clean, branded dashboards —
 ---
 
 ## Key Features
+- 🌐 **MasterAgent**: Accepts natural language prompts and calls specialized agents accordingly.
 - 🔼️ **htmlAgent**: Auto-generates header, footer, grid layouts.
 - 🎨 **cssAgent**: Applies themes, colors, spacing, and style changes dynamically.
 - ⚡ **jsAgent**: Adds dashboard interactivity, toggling visibility of dashboard parts.
-- 🌐 **MasterAgent**: Accepts natural language prompts and calls specialized agents accordingly.
 
 ---
 
