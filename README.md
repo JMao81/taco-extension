@@ -42,13 +42,16 @@ Master Agent
 /taco-extension
 |-- /assets
 |-- /css
-|   |-- theme_as.css
-|   |-- theme_ha.css
+|   |-- base.css
+|   |-- config.css
 |-- /js
-|   |-- masterAgent.js
-|   |-- htmlAgent.js
-|   |-- cssAgent.js
-|   |-- jsAgent.js
+|   |-- /agents
+|       |-- masterAgent.js
+|       |-- htmlAgent.js
+|       |-- cssAgent.js
+|       |-- jsAgent.js
+|    |--config.js
+|    |--taco.js
 |-- config.html
 |-- index.html
 |-- README.md
