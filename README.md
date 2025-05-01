@@ -12,10 +12,8 @@ TACO saves time, standardizes design, and delivers clean, branded dashboards —
 ---
 
 ## Demo Video
-[![Watch the video](https://img.youtube.com/vi/C7auCWgqu80/hqdefault.jpg)](https://www.youtube.com/watch?v=C7auCWgqu80)
-
 <a href="https://www.youtube.com/watch?v=C7auCWgqu80" target="_blank" rel="noopener noreferrer">
-  <img src="https://img.youtube.com/vi/C7auCWgqu80/hqdefault.jpg" alt="Watch on YouTube">
+  <img src="https://img.youtube.com/vi/C7auCWgqu80/hqdefault.jpg" alt="Watch on YouTube" width="640">
 </a>
 ---
 
