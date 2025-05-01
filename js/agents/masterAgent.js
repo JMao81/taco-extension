@@ -7,7 +7,7 @@ import * as cssAgent from './cssAgent.js';
 import * as jsAgent from './jsAgent.js';
 
 // This URL points to the Azure Function that fetches the OpenAI settings
-const proxyConfigUrl = "https://taco-openai-proxy.azurewebsites.net/api/proxyOpenAI";
+const proxyConfigUrl = "https://xxxx-xxxx-proxy.azurewebsites.net/api/azure-function";
 
 // These will hold the Azure OpenAI settings once fetched from the proxy function
 let azureOpenAIendpoint = "";
