@@ -79,7 +79,7 @@ Example:
 ---
 
 ## Tech Stack
-- Azure OpenAI Service
+- Azure OpenAI Service (GPT 4o Model)
 - JavaScript (ES6+)
 - Tableau Extensions API
 - Azure Function (to retrieve API key)
