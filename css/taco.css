@@ -1,0 +1,447 @@
+/* Example: ASCircular Light */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-Light.otf') format('opentype');
+    font-weight: 300;
+    /* or whichever weight is appropriate for 'Light' */
+    font-style: normal;
+}
+
+/* Example: ASCircular Light Italic */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-LightItalic.otf') format('opentype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+/* Example: ASCircular Regular (Book) */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-Book.otf') format('opentype');
+    font-weight: 400;
+    font-style: normal;
+}
+
+/* Example: ASCircular Regular Italic */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-BookItalic.otf') format('opentype');
+    font-weight: 400;
+    font-style: italic;
+}
+
+/* Example: ASCircular Medium */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-Medium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+/* Example: ASCircular Medium Italic */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-MediumItalic.otf') format('opentype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+/* Example: ASCircular Bold */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-Bold.otf') format('opentype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Example: ASCircular Bold Italic */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-BoldItalic.otf') format('opentype');
+    font-weight: 700;
+    font-style: italic;
+}
+
+/* Example: ASCircular Black */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-Black.otf') format('opentype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+/* Example: ASCircular Black Italic */
+@font-face {
+    font-family: 'AS Circular';
+    src: url('./fonts/ASCircular-BlackItalic.otf') format('opentype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+
+@font-face {
+    font-family: 'Inter';
+    src: url('./fonts/inter-variableFont_opsz,wght.ttf') format('truetype');
+    /* Optionally, specify the variable range if desired */
+    font-weight: 100 900;
+    /* If your font supports variation settings for optical size, you can also include:
+       font-stretch: 75% 125%;
+    */
+}
+
+@font-face {
+    font-family: 'Roboto';
+    src: url('./fonts/RobotoFlex-VariableFont_GRAD,XOPQ,XTRA,YOPQ,YTAS,YTDE,YTFI,YTLC,YTUC,opsz,slnt,wdth,wght.ttf') format('truetype');
+    /* You can specify a range for font-weight if needed. Adjust these values based on your font specs: */
+    font-weight: 100 1000;
+    /* Optionally, add other variation ranges if applicable, e.g., for width or slant:
+       font-variation-settings: 'wght' 400, 'slnt' 0;
+    */
+}
+
+/* Reset and base styles */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: "AS Circular", Inter, Roboto, sans-serif;
+    background-color: #fff;
+    color: #333;
+}
+
+
+/* Hide elements based on data attributes */
+[data-show-header="false"] .header {
+    display: none !important;
+}
+
+[data-show-subheader="false"] .subheader {
+    display: none !important;
+}
+
+[data-show-navbar="false"] .sidebar {
+    display: none !important;
+}
+
+[data-show-logo="false"] .logo {
+    display: none !important;
+}
+
+[data-show-top-menu="false"] .nav-menu {
+    display: none;
+}
+
+[data-show-bottom-menu="false"] .sidebar-bottom-menu {
+    display: none;
+}
+
+[data-show-vizgrid="false"] .card-container {
+    display: none !important;
+}
+
+[data-show-footer="false"] .footer {
+    display: none !important;
+}
+
+/* Layout container: places sidebar on the left, main content on the right */
+.layout-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    /* border: 1px dashed red; */
+}
+
+/* Sidebar styling */
+.sidebar {
+    background-color: #f8f8f8;
+    border-right: 1px solid #ddd;
+    padding: 25px 12px 15px 12px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    /* align-items: center; */
+    width: 160px;
+    /* border: 1px dashed red; */
+}
+
+/* .logo-container {
+    min-height: 100px;   
+    order: 0; 
+} */
+
+#logo-in-sidebar .logo {
+    width: 80px;
+    /* or however wide you want the container */
+    height: 80px;
+    /* the height of your container */
+    display: flex;
+    align-items: center;
+    /* center vertically */
+    justify-content: center;
+    /* center horizontally */
+    margin: 0 auto;
+    /* optional if you want to center this container in the sidebar */
+    /* border: 1px dashed red; */
+    /* temporary for debugging, remove later */
+}
+
+#logo-in-sidebar .logo-img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Logo image styling */
+.logo-img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Header and Subheader layouts */
+.header,
+.subheader {
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    padding: 10px 15px;
+    /* border: 1px dashed red; */
+}
+
+.header {
+    background-color: #eee;
+    padding: 15px;
+    font-size: 20px;
+    font-weight: bold;
+    min-height: 40px;
+    box-sizing: border-box;
+}
+
+.subheader {
+    background-color: #cdcdcd;
+    padding: 10px 15px;
+    font-size: 16px;
+    min-height: 60px;
+    box-sizing: border-box;
+    margin-top: 0px;
+}
+
+.header-content,
+.subheader-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+    position: relative;
+    /* add this line to create a positioning context */
+}
+
+/* Containers for logo repositioning */
+#logo-in-sidebar,
+#logo-in-header,
+#logo-in-subheader {
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    justify-content: center;
+    /* border: 1px dashed rgb(5, 172, 75); */
+}
+
+/* Container-specific logo sizes */
+#logo-in-sidebar .logo,
+#logo-in-header .logo,
+#logo-in-subheader .logo {
+    /* width: 80px; */
+    /* Adjust as needed */
+    /* height: 80px; */
+    /* Adjust as needed */
+    /* max-width: 80px; */
+    /* Enforce max dimension so it doesn't overshadow text */
+    /* max-height: 80px; */
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    justify-content: center;
+}
+
+.header-text,
+.subheader-text {
+    width: 100%;
+    display: block;
+    align-items: center;
+    gap: 10px;
+    min-height: 30px;
+}
+
+.export-buttons {
+    position: fixed;
+    top: 5px;
+    right: 10px;
+    z-index: 999;
+}
+
+/* .export-pdf {
+    margin-right: 15px;
+} */
+
+/* .export-pdf, */
+.export-image {
+    color: rgb(121, 17, 17);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+/* Sidebar menu container */
+.nav-menu {
+    list-style: none;
+    margin-top: 25px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    /* border: 1px dashed red; */
+}
+
+.nav-menu li {
+    width: 100%;
+    margin-bottom: 12px;
+    /* border: 1px dashed rgb(17, 0, 255); */
+}
+
+.nav-menu li a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    transition: background 0.2s ease;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+.nav-menu li a i,
+.sidebar-bottom-menu ul li a i {
+    margin-right: 6px;
+    font-size: 14px;
+    width: 15px;
+    text-align: center;
+}
+
+.nav-menu li a:hover,
+.sidebar-bottom-menu ul li a:hover {
+    background: #e6e6e6;
+    border-radius: 0px;
+    color: #007acc;
+}
+
+.nav-menu li a.active,
+.sidebar-bottom-menu li a.active {
+    border-radius: 0px;
+    background-color: rgba(175, 175, 175, 0.2) !important;
+}
+
+/* Sidebar bottom menu */
+.sidebar-bottom-menu {
+    margin-top: auto;
+    padding: 40px 10px 10px 10px;
+    border-top: 1px solid #ddd;
+    /* border: 1px dashed red; */
+    margin-bottom: 60px;
+}
+
+.sidebar-bottom-menu ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.sidebar-bottom-menu ul li {
+    width: 100%;
+    margin-bottom: 12px;
+    /* border: 1px dashed rgb(25, 0, 255); */
+}
+
+.sidebar-bottom-menu ul li a {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-decoration: none;
+    color: #242323;
+    font-size: 14px;
+    padding: 10px;
+    width: 100%;
+    transition: background 0.2s ease;
+    border: 1px solid transparent;
+    box-sizing: border-box;
+    border-radius: 4px;
+}
+
+/* Main content area */
+.main-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    overflow: auto;
+    box-sizing: border-box;
+}
+
+
+/* Footer */
+.footer {
+    background-color: #eee;
+    padding: 15px;
+    text-align: center;
+    border-top: 1px solid #ddd;
+    box-sizing: border-box;
+    margin-top: auto;
+}
+
+/* Content area */
+.content {
+    flex: 1;
+    padding: 15px;
+    /* overflow: auto; */
+    box-sizing: border-box;
+    align-items: center;
+    /* border: 1px dashed red; */
+}
+
+/* Grid stack styles */
+.grid-stack {
+    align-items: center;
+    justify-content: center;
+}
+
+.grid-stack-item-content {
+    color: #2c3e50;
+    /* Dark text for good contrast */
+    text-align: center;
+    background-color: rgba(248, 248, 248, 0.8);
+    border: 1px solid #2c3e50;
+    border-radius: 5px;
+    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* aspect-ratio: 1 / 1; */
+}
+
+/* .ui-resizable-se,
+.ui-resizable-sw {
+    opacity: 0 !important;
+} */
+
+/* .ui-resizable-se {
+    bottom: -5px !important;
+    right: -5px !important;
+} */

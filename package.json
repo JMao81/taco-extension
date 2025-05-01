@@ -1,0 +1,20 @@
+{
+  "name": "taco-extension",
+  "version": "1.0.0",
+  "description": "## Overview **TACO** is an AI-powered, modular Tableau Extension that intelligently designs dashboards. It uses a Master Agent to orchestrate three specialized agents: - `htmlAgent`: Builds dynamic dashboard layouts - `cssAgent`: Applies branding themes and styling - `jsAgent`: Manages interactivity, visibility, and component behavior",
+  "main": "taco.js",
+  "scripts": {
+    "start": "http-server . -p 8080"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jmao81/Taco-Extension.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jmao81/Taco-Extension/issues"
+  },
+  "homepage": "https://github.com/jmao81/Taco-Extension#readme"
+}

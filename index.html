@@ -1,27 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TACO: Tableau Agent for Creative Orchestration</title>
-    <link rel="stylesheet" href="css/theme_as.css">
-    <link rel="stylesheet" href="css/theme_ha.css">
-</head>
-<body>
-    <div id="dashboard-container">
-        <h1>Welcome to TACO</h1>
-        <p>Your AI-powered dashboard designer.</p>
-        <button id="config-button">Open Configuration</button>
-    </div>
+    <title>TACO: Tableau Automation Copilot</title>
 
-    <script src="js/masterAgent.js"></script>
-    <script src="js/htmlAgent.js"></script>
-    <script src="js/cssAgent.js"></script>
-    <script src="js/jsAgent.js"></script>
-    <script>
-        document.getElementById('config-button').addEventListener('click', function() {
-            window.open('config.html', '_blank');
-        });
-    </script>
+    <!-- jQuery -->
+    <script src="./js/jquery-3.2.1.min.js"></script>
+
+    <!-- Bootstrap -->
+    <script src="./js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+
+    <script src="./js/tableau.extensions.1.latest.js"></script>
+    
+    <!-- Our extension's code -->
+    <script type="module" src="./js/taco.js"></script>
+    <link rel="stylesheet" href="./css/base.css">
+
+    <!-- Font Awesome Icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <div id="real-dashboard">
+    </div>
 </body>
+
 </html>

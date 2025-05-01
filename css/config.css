@@ -1,0 +1,176 @@
+/* config.css */
+@font-face {
+    font-family: 'Inter';
+    src: url('./fonts/Inter-VariableFont_opsz\,wght.ttf')format('woff2');
+    font-weight: 400;
+    font-style: normal;
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - 80px);
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    width: 100%;
+    /* leave room for footer-actions */
+}
+
+/* Chat on left */
+.chat-container {
+    width: 30%;
+    padding: 10px 20px;
+    border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    color: #5c52bb;
+    font-size: 20px;
+    font-weight: bold;
+    margin: 5px;
+}
+
+.chat-history {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    height: 85%;
+}
+
+.chat-history.scrolled-to-bottom {
+    scroll-behavior: smooth;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+}
+
+.chat-input textarea {
+    flex: 1;
+    resize: none;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    height: 60px;
+}
+
+.chat-input button {
+    padding: 10px 20px;
+    border: none;
+    background: #5c52bb;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.chat-input button:hover {
+    background-color: #483d97;
+}
+
+.message {
+    max-width: 75%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin: 4px 0;
+    margin-bottom: 8px;
+    font-size: 14px;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes blink {
+    50% {
+        border-color: transparent;
+    }
+}
+
+.message .cursor {
+    display: inline-block;
+    border-right: 2px solid #333;
+    animation: blink 1s step-end infinite;
+}
+
+.message.user {
+    align-self: flex-end;
+    /* right side */
+    background-color: #d0f0fd;
+}
+
+.message.agent {
+    align-self: flex-start;
+    /* left side */
+    background-color: #e0e0e0;
+}
+
+.message.typing {
+    color: #999999;
+}
+
+/* main-area stacks preview + debug vertically */
+.main-area {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Preview takes 70% of the main-area height */
+.preview-wrapper {
+    flex: 8;
+    position: relative;
+    overflow: hidden;
+}
+
+#debugLog {
+    flex: 2;
+    background: #1e1e1e;
+    color: #ddd;
+    font-family: monospace;
+    font-size: 12px;
+    padding: 8px;
+    overflow-y: auto;
+    margin-top: 4px;
+    /* small gap under preview */
+    border-radius: 6px;
+}
+
+.footer-actions {
+    position: fixed;
+    bottom: 20px;
+    right: 32px;
+    display: flex;
+    gap: 10px;
+}
+
+.footer-actions button {
+    padding: 12px 20px;
+    background-color: #5c52bb;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.footer-actions button:hover {
+    background-color: #483d97;
+}
+
+/* Keep your preview scaling CSS here */
+#previewContainer {
+    transform-origin: top left;
+}

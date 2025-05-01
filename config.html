@@ -1,29 +1,72 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TACO Configuration</title>
-    <link rel="stylesheet" href="css/theme_as.css">
-    <link rel="stylesheet" href="css/theme_ha.css">
+    <title>TACO Configuration Panel</title>
+
+    <script src="./js/tableau.extensions.1.latest.js"></script>
+
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="./css/jquery-ui.css">
+
+    <script type="module" src="./js/config.js"></script>
+
+
+    <script src="./js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+
+    <!-- Font Awesome Icons-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="./css/config.css">
+    <link rel="stylesheet" href="./css/base.css">
+
 </head>
+
 <body>
-    <div id="config-container">
-        <h1>TACO Configuration</h1>
-        <label for="user-prompt">Enter your dashboard prompt:</label>
-        <textarea id="user-prompt" rows="4" cols="50" placeholder="e.g., Create a 2x2 layout for KPIs and Trends using Theme A."></textarea>
-        <button id="generate-dashboard">Generate Dashboard</button>
+
+    <div class="container">
+        <!-- Chat Section -->
+        <div class="chat-container">
+            <div class="chat-header">🌮 Ask TACO</div>
+            <div id="chatHistory" class="chat-history"></div>
+            <div class="chat-input">
+                <textarea id="userPrompt" placeholder="Describe what you want the dashboard to look like..."></textarea>
+                <button onclick="submitPrompt()">Send</button>
+            </div>
+        </div>
+
+        <div class="main-area">
+            <!-- Preview Section -->
+            <div class="preview-wrapper">
+                <div id="previewContainer">
+                    <div id="real-dashboard"></div>
+                    <script>
+                        fetch('dashboardContainer.html')
+                            .then(r => {
+                                if (!r.ok) throw new Error('Failed to load container');
+                                return r.text();
+                            })
+                            .then(html => {
+                                document.getElementById('real-dashboard').innerHTML = html;
+                            })
+                            .catch(err => console.error(err));
+                    </script>
+                </div>
+            </div>
+
+            <!-- Debug Log Section -->
+            <div id="debugLog" class="debug-panel"></div>
+        </div>
     </div>
-    <script src="js/masterAgent.js"></script>
-    <script src="js/htmlAgent.js"></script>
-    <script src="js/cssAgent.js"></script>
-    <script src="js/jsAgent.js"></script>
-    <script>
-        document.getElementById('generate-dashboard').addEventListener('click', function() {
-            const prompt = document.getElementById('user-prompt').value;
-            // Call the MasterAgent to generate the dashboard based on the prompt
-            // Implementation of MasterAgent logic goes here
-        });
-    </script>
+    <!-- Floating Save/Cancel Buttons -->
+    <div class="footer-actions">
+        <button id="save-button">Save</button>
+        <button id="cancel-button">Cancel</button>
+    </div>
+
 </body>
+
 </html>
